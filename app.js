@@ -1,339 +1,302 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const elements = {
-        sidebar: document.getElementById('sidebar'),
-        sidebarOverlay: document.getElementById('sidebarOverlay'),
-        bookList: document.getElementById('bookList'),
-        homeDashboard: document.getElementById('homeDashboard'),
-        vodBanner: document.getElementById('vodBanner'),
-        chapterSelection: document.getElementById('chapterSelection'),
-        chapterGrid: document.getElementById('chapterGrid'),
-        versesContainer: document.getElementById('versesContainer'),
-        selectedBookTitle: document.getElementById('selectedBookTitle'),
-        themeMenu: document.getElementById('themeMenu'),
-        toast: document.getElementById('toast'),
-        paginationControls: document.getElementById('paginationControls'),
-        searchOverlay: document.getElementById('searchOverlay'),
-        searchInput: document.getElementById('advancedSearchInput'),
-        searchCategory: document.getElementById('searchCategory'),
-        searchBookDropdown: document.getElementById('searchBookDropdown'),
-        searchResults: document.getElementById('searchResults'),
-        searchInfo: document.getElementById('searchInfo'),
-        bookmarksOverlay: document.getElementById('bookmarksOverlay'),
-        openBookmarksBtn: document.getElementById('openBookmarksBtn'),
-        closeBookmarks: document.getElementById('closeBookmarks'),
-        bookmarksListContainer: document.getElementById('bookmarksListContainer'),
-        bottomActionBar: document.getElementById('bottomActionBar'),
-        selectedCount: document.getElementById('selectedCount')
-    };
-
-    let bibleData = null;
-    let currentBookIndex = null;
-    let currentChapterIndex = null;
-    let selectedVerses = new Set();
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOG బైబిల్ - WORLD OF GOD</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@400;600;700;800&family=Mallanna&display=swap" rel="stylesheet">
     
-    let userHighlights = JSON.parse(localStorage.getItem('wogHighlights')) || [];
-    let userBookmarks = JSON.parse(localStorage.getItem('wogBookmarks')) || [];
-
-    const teluguBooks = [
-        "ఆదికాండము", "నిర్గమకాండము", "లేవీయకాండము", "సంఖ్యాకాండము", "ద్వితీయోపదేశకాండము", "యెహోషువ", "న్యాయాధిపతులు", "రూతు", "1 సమూయేలు", "2 సమూయేలు", "1 రాజులు", "2 రాజులు", "1 దినవృత్తాంతములు", "2 దినవృత్తాంతములు", "ఎజ్రా", "నెహెమ్యా", "ఎస్తేరు", "యోబు", "కీర్తనలు", "సామెతలు", "ప్రసంగి", "పరమగీతము", "యెషయా", "యిర్మియా", "విలాపవాక్యములు", "యెహెజ్కేలు", "దానియేలు", "హోషేయ", "యోవేలు", "ఆమోసు", "ఓబద్యా", "యోనా", "మీకా", "నహూము", "హబక్కూకు", "జెఫన్యా", "హగ్గయి", "జెకర్యా", "మలాకీ", 
-        "మత్తయి", "మార్కు", "లూకా", "యోహాను", "అపొస్తలుల కార్యములు", "రోమీయులకు", "1 కొరింథీయులకు", "2 కొరింథీయులకు", "గలతీయులకు", "ఎఫెసీయులకు", "ఫిలిప్పీయులకు", "కొలస్సయులకు", "1 థెస్సలొనీకయులకు", "2 థెస్సలొనీకయులకు", "1 తిమోతికి", "2 తిమోతికి", "తీతుకు", "ఫిలేమోనుకు", "హెబ్రీయులకు", "యాకోబు", "1 పేతురు", "2 పేతురు", "1 యోహాను", "2 యోహాను", "3 యోహాను", "యూదా", "ప్రకటన"
-    ];
-
-    history.replaceState({ view: 'home' }, '');
-
-    fetch('bible.json').then(res => res.json()).then(data => {
-        bibleData = data;
-        populateSidebar();
-        populateSearchDropdown();
-        displayVerseOfTheDay();
-        applySavedSettings();
-    }).catch(err => showToast("డేటా లోడ్ అవ్వలేదు."));
-
-    window.openSidebarTo = function(category) {
-        document.getElementById('menuBtn').click();
-        setTimeout(() => {
-            if(category === 'nt') {
-                const ntBtn = elements.bookList.children[39];
-                if(ntBtn) ntBtn.scrollIntoView({behavior: 'smooth', block: 'start'});
-            } else {
-                elements.sidebar.scrollTop = 0;
-            }
-        }, 300);
-    };
-
-    document.getElementById('menuBtn').onclick = () => { elements.sidebar.classList.add('active'); elements.sidebarOverlay.classList.add('active'); history.pushState({ view: 'sidebar' }, ''); };
-    document.getElementById('closeSidebar').onclick = elements.sidebarOverlay.onclick = () => { history.back(); };
-    document.getElementById('closeSearch').onclick = () => { history.back(); };
-    elements.closeBookmarks.onclick = () => { history.back(); };
-    document.getElementById('themeBtn').onclick = () => elements.themeMenu.classList.toggle('active');
-
-    window.addEventListener('popstate', (e) => {
-        const view = e.state ? e.state.view : 'home';
-        elements.sidebar.classList.remove('active'); elements.sidebarOverlay.classList.remove('active');
-        elements.searchOverlay.classList.remove('active'); elements.bookmarksOverlay.classList.remove('active');
-        elements.themeMenu.classList.remove('active');
-
-        if (view === 'home') {
-            elements.homeDashboard.style.display = 'block'; elements.chapterSelection.style.display = 'none'; elements.versesContainer.style.display = 'none'; elements.paginationControls.style.display = 'none';
-        } else if (view === 'chapters' && e.state.bookIndex !== undefined) {
-            elements.homeDashboard.style.display = 'none'; elements.chapterSelection.style.display = 'block'; elements.versesContainer.style.display = 'none'; elements.paginationControls.style.display = 'none';
-        } else if (view === 'reading' && e.state.bookIndex !== undefined) {
-            elements.homeDashboard.style.display = 'none'; elements.chapterSelection.style.display = 'none'; elements.versesContainer.style.display = 'block'; elements.paginationControls.style.display = 'flex';
+    <style>
+        :root {
+            --font-heading: 'Anek Telugu', sans-serif;
+            --font-reading: 'Mallanna', sans-serif;
+            --font-ui: 'Segoe UI', system-ui, sans-serif;
+            
+            --app-bg: #f4f6f8;        
+            --paper-bg: #ffffff;      
+            --text-main: #202124;     
+            --text-muted: #5f6368;
+            --brand-color: #900C3F;   
+            --brand-light: #fbeef1;   
+            --border-light: #e0e0e0;
+            --highlight-color: rgba(241, 196, 15, 0.4);
+            
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        clearSelection(); 
-    });
 
-    function selectBook(bookIndex) {
-        currentBookIndex = bookIndex;
-        elements.homeDashboard.style.display = 'none'; elements.versesContainer.style.display = 'none'; elements.paginationControls.style.display = 'none';
-        elements.chapterSelection.style.display = 'block';
-        elements.selectedBookTitle.textContent = teluguBooks[bookIndex];
+        body.theme-dark { 
+            --app-bg: #000000;          
+            --paper-bg: #111111;        
+            --text-main: #e0e0e0;       
+            --text-muted: #888888;      
+            --border-light: #222222;    
+            --brand-color: #666666; 
+            --brand-light: #1a1a1a; 
+            --highlight-color: rgba(255, 235, 59, 0.35); 
+        }
         
-        elements.chapterGrid.innerHTML = '';
-        bibleData.Book[bookIndex].Chapter.forEach((_, index) => {
-            const btn = document.createElement('button'); btn.className = 'chapter-btn'; btn.textContent = index + 1;
-            btn.onclick = () => { history.pushState({ view: 'reading', bookIndex: bookIndex, chapterIndex: index }, ''); loadMagazineChapter(bookIndex, index); };
-            elements.chapterGrid.appendChild(btn);
-        });
-        history.pushState({ view: 'chapters', bookIndex: bookIndex }, '');
-    }
+        body.theme-sepia { --app-bg: #f4ecd8; --paper-bg: #fdf6e3; --text-main: #5c4b37; --text-muted: #8a7b66; --border-light: #e6dcc3; --brand-light: #f4ecd8; --highlight-color: rgba(211, 84, 0, 0.2); }
 
-    function populateSidebar() { teluguBooks.forEach((bookName, index) => { const btn = document.createElement('button'); btn.className = 'book-item'; btn.textContent = bookName; btn.onclick = () => { history.back(); setTimeout(() => selectBook(index), 100); }; elements.bookList.appendChild(btn); }); }
-    function populateSearchDropdown() { teluguBooks.forEach((bookName, index) => { const option = document.createElement('option'); option.value = index; option.textContent = bookName; elements.searchBookDropdown.appendChild(option); }); }
-
-    function displayVerseOfTheDay() {
-        const bIndex = Math.floor(Math.random() * 66); const cIndex = Math.floor(Math.random() * bibleData.Book[bIndex].Chapter.length); const vIndex = Math.floor(Math.random() * bibleData.Book[bIndex].Chapter[cIndex].Verse.length);
-        document.getElementById('vodText').textContent = bibleData.Book[bIndex].Chapter[cIndex].Verse[vIndex].Verse;
-        document.getElementById('vodRef').textContent = `- ${teluguBooks[bIndex]} ${cIndex + 1}:${vIndex + 1}`;
-    }
-
-    window.loadMagazineChapter = function(bookIndex, chapterIndex) {
-        clearSelection();
-        currentBookIndex = bookIndex; currentChapterIndex = chapterIndex;
-        elements.chapterSelection.style.display = 'none'; elements.homeDashboard.style.display = 'none'; elements.versesContainer.style.display = 'block';
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
-        const bookName = teluguBooks[bookIndex]; const chapterNumber = chapterIndex + 1;
-        const verses = bibleData.Book[bookIndex].Chapter[chapterIndex].Verse;
-        let html = `<h2 class="chapter-heading">${bookName} ${chapterNumber}</h2>`;
+        /* 🟢 FIX: Background added to HTML so there are no white flashes on scroll */
+        html { background-color: var(--app-bg); transition: background-color var(--transition); }
         
-        verses.forEach((verseItem, vIndex) => {
-            const verseId = `${bookIndex}-${chapterIndex}-${vIndex}`;
-            const isHigh = userHighlights.includes(verseId) ? 'is-highlighted' : '';
-            const isBook = userBookmarks.includes(verseId) ? 'is-bookmarked' : '';
+        /* 🟢 FIX: Removed overflow bug so Top Bar stays sticky forever */
+        body { background-color: var(--app-bg); color: var(--text-main); font-family: var(--font-ui); line-height: 1.5; transition: background-color var(--transition), color var(--transition); }
+        
+        .app-container { max-width: 850px; margin: 0 auto; min-height: 100vh; background: var(--app-bg); padding-bottom: 120px; position: relative;}
 
-            html += `
-                <div class="verse-block ${isHigh} ${isBook}" id="verse-${verseId}" data-verseid="${verseId}">
-                    <div class="verse-num">${vIndex + 1}</div>
-                    <div class="verse-text">${verseItem.Verse}</div>
+        /* HEADER - 🟢 FIX: Mobile Safari sticky support */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--paper-bg); position: -webkit-sticky; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(0,0,0,0.06); border-bottom: 2px solid var(--brand-color); }
+        .brand-logo { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .wog-title { font-family: var(--font-heading); font-size: 2.2rem; color: var(--brand-color); font-weight: 800; line-height: 1; margin: 0; letter-spacing: 0.5px; }
+        .wog-subtitle { font-family: var(--font-ui); font-size: 0.65rem; letter-spacing: 2px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
+        .nav-actions { display: flex; gap: 5px; }
+        .icon-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 8px; transition: var(--transition); }
+        .icon-btn:hover { color: var(--brand-color); }
+
+        /* THEME MENU */
+        .theme-menu { position: absolute; top: 65px; right: 20px; background: var(--paper-bg); box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; display: none; z-index: 1000; border: 1px solid var(--border-light); }
+        .theme-menu.active { display: block; }
+        .theme-option { display: block; width: 100%; padding: 12px; text-align: left; background: none; border: none; color: var(--text-main); cursor: pointer; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; border-radius: 6px; }
+        .font-size-controls { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 5px; }
+        .font-size-controls button { flex: 1; padding: 10px; background: var(--app-bg); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-main); cursor: pointer; font-family: var(--font-heading); font-size: 1.1rem; font-weight: bold; }
+
+        /* SIDEBAR */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); z-index: 9998 !important; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 280px; max-width: 85vw; height: 100vh; background-color: var(--paper-bg) !important; z-index: 9999 !important; overflow-y: auto; transition: var(--transition); box-shadow: 4px 0 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-light); background: var(--brand-light); }
+        .sidebar-header h2 { font-family: var(--font-heading); color: var(--brand-color); font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .book-list { padding: 10px 0 100px 0; background-color: var(--paper-bg); }
+        .book-item { display: block; width: 100%; text-align: left; padding: 14px 25px; background: none; border: none; color: var(--text-main); font-size: 1.25rem; font-family: var(--font-heading); font-weight: 600; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border-light);}
+
+        /* DASHBOARD */
+        .home-dashboard { padding: 20px; animation: fadeIn 0.5s ease; }
+        .dashboard-header { text-align: center; margin-bottom: 25px; margin-top: 10px;}
+        .dashboard-header h2 { font-family: var(--font-heading); font-size: 1.8rem; color: var(--text-main); font-weight: 800;}
+        .dashboard-header p { font-family: var(--font-ui); color: var(--text-muted); font-size: 1rem; }
+
+        .vod-banner { background: var(--brand-color); color: white !important; padding: 35px 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; margin-bottom: 30px; text-align: center;}
+        .vod-banner::after { content: '\f10d'; font-family: 'FontAwesome'; position: absolute; top: -10px; right: 10px; font-size: 7rem; opacity: 0.1; color: white;}
+        .vod-label { background: rgba(0,0,0,0.3); color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; font-weight: bold; letter-spacing: 2px;}
+        .vod-text { font-family: var(--font-reading); font-size: 2rem; line-height: 1.6; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-bottom: 15px; overflow-wrap: break-word; color: white !important;}
+        .vod-ref { font-family: var(--font-heading); font-weight: 700; color: rgba(255,255,255,0.9); font-size: 1.1rem; }
+
+        .quick-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .quick-link-card { background-color: var(--paper-bg); border: 1px solid var(--border-light); border-radius: 16px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: var(--transition); cursor: pointer; }
+        .ql-icon { font-size: 2.2rem; color: var(--brand-color); margin-bottom: 12px; }
+        .ql-title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+
+        /* CHAPTERS & READING AREA */
+        .chapter-selection { padding: 30px 20px; text-align: center; }
+        .fancy-title { font-family: var(--font-heading); font-size: 2.2rem; margin-bottom: 25px; color: var(--text-main); font-weight: 800; overflow-wrap: break-word; }
+        .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); gap: 12px; }
+        .chapter-btn { background: var(--paper-bg); color: var(--text-main); border: 1px solid var(--border-light); padding: 15px 0; border-radius: 12px; font-size: 1.3rem; cursor: pointer; font-family: var(--font-heading); font-weight: 700; transition: 0.2s; }
+
+        .magazine-reading-area { background: var(--paper-bg); margin: 20px; padding: 35px 25px; border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); border: 1px solid var(--border-light); }
+        .chapter-heading { font-family: var(--font-heading); font-size: 2.2rem; text-align: center; margin-bottom: 30px; color: var(--brand-color); font-weight: 800; padding-bottom: 20px; border-bottom: 1px solid var(--border-light); overflow-wrap: break-word; }
+        
+        .verse-block { 
+            display: flex; align-items: flex-start; margin-bottom: 12px; padding: 12px 5px; 
+            border-radius: 8px; transition: 0.2s; position: relative; cursor: pointer;
+            -webkit-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none;
+        }
+        .verse-num { font-family: var(--font-heading); color: var(--brand-color); font-weight: 800; font-size: 1.1rem; min-width: 30px; margin-top: 6px; position: relative;}
+        .verse-text { flex: 1; font-family: var(--font-reading); font-size: 1.6rem; line-height: 1.7; color: var(--text-main); overflow-wrap: break-word;}
+        
+        .is-highlighted .verse-text { background-color: var(--highlight-color); border-radius: 4px; padding: 0 5px; }
+        .is-bookmarked .verse-num::before { content: '\f02e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: -8px; color: #f1c40f; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
+
+        .verse-block.selected { background-color: var(--brand-light); border-left: 4px solid var(--brand-color); }
+        body.theme-dark .verse-block.selected { background-color: #1a1a1a; border-left-color: #666666; }
+        
+        /* BOTTOM BAR */
+        .bottom-action-bar { 
+            position: fixed; bottom: -100px; left: 0; width: 100%; 
+            background: var(--brand-color); color: white; 
+            padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3); 
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            flex-wrap: nowrap;
+        }
+        .bottom-action-bar.active { bottom: 0; }
+        .action-count { font-family: var(--font-heading); font-size: 1.2rem; font-weight: bold; white-space: nowrap; }
+        .action-buttons { display: flex; gap: 20px; align-items: center; }
+        .action-buttons button { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 5px; }
+
+        /* OVERLAYS */
+        .search-overlay { position: fixed; top: 100%; left: 0; width: 100%; height: 100vh; background-color: var(--app-bg) !important; z-index: 2000 !important; transition: top 0.4s ease; display: flex; flex-direction: column; }
+        .search-overlay.active { top: 0; }
+        .search-header-container { background: var(--paper-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px; }
+        .search-header-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;}
+        .search-header-bar input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-light); border-radius: 30px; font-size: 1rem; font-family: var(--font-ui); outline: none; background: var(--app-bg); color: var(--text-main);}
+        .search-filters { display: flex; gap: 10px; padding: 0 5px;}
+        .search-select { flex: 1; padding: 10px 15px; border: 1px solid var(--border-light); border-radius: 8px; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; background: var(--app-bg); color: var(--text-main); outline: none;}
+        .search-info { text-align: center; padding: 15px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600;}
+        .search-results-container { flex: 1; overflow-y: auto; padding: 15px; }
+        .result-card { background: var(--paper-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-light); border-left: 5px solid var(--brand-color); cursor: pointer; position: relative;}
+        .result-ref { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--brand-color); margin-bottom: 8px; }
+        .result-text { font-family: var(--font-reading); font-size: 1.4rem; line-height: 1.6; color: var(--text-main); word-break: break-word;}
+        .search-word-hl { background-color: rgba(144, 12, 63, 0.2); color: var(--brand-color); padding: 0 4px; border-radius: 4px; font-weight: bold;}
+
+        /* EXTRAS */
+        .target-highlight { animation: pulse-glow 3s ease-out; border-left: 4px solid var(--brand-color); background: var(--brand-light); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse-glow { 0% { background-color: rgba(255, 235, 59, 0.4); } 100% { background-color: transparent; } }
+
+        .pagination { display: flex; justify-content: space-between; padding: 0 15px; margin-top: 25px; gap: 10px; }
+        .nav-btn { flex: 1; background: var(--paper-bg); border: 1px solid var(--border-light); padding: 12px 15px; border-radius: 30px; cursor: pointer; color: var(--text-main); font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
+        
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: var(--app-bg); padding: 12px 24px; border-radius: 30px; font-size: 1rem; opacity: 0; transition: 0.3s; z-index: 4000; font-family: var(--font-ui); font-weight: 600; text-align: center; width: max-content; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .toast.show { opacity: 1; bottom: 100px; }
+
+        @media screen and (max-width: 600px) {
+            .wog-title { font-size: 1.8rem; }
+            .magazine-reading-area { margin: 10px; padding: 25px 15px; border-radius: 12px;}
+            .chapter-heading { font-size: 1.7rem; margin-bottom: 20px; padding-bottom: 15px; }
+            .verse-text { font-size: 1.4rem; line-height: 1.6; }
+            .fancy-title { font-size: 1.6rem; }
+            .vod-text { font-size: 1.5rem; }
+            .verse-block { padding: 10px 0; }
+            .verse-num { font-size: 1rem; min-width: 28px; margin-top: 4px; }
+            .chapter-grid { gap: 8px; }
+            .chapter-btn { padding: 12px 0; font-size: 1.1rem; }
+            .bottom-action-bar { padding: 12px 15px; }
+            .action-count { font-size: 1rem; }
+            .action-buttons { gap: 12px; }
+            .action-buttons button { font-size: 1.2rem; padding: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-book-bible"></i> పుస్తకాలు</h2>
+            <button id="closeSidebar" class="icon-btn" style="color: var(--brand-color);"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="bookList" class="book-list"></div>
+    </aside>
+
+    <div id="searchOverlay" class="search-overlay">
+        <div class="search-header-container">
+            <div class="search-header-bar">
+                <button id="closeSearch" class="icon-btn"><i class="fa-solid fa-arrow-left"></i></button>
+                <input type="text" id="advancedSearchInput" placeholder="పదాన్ని వెతకండి...">
+                <button id="doSearchBtn" class="icon-btn" style="color: var(--brand-color);"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="search-filters">
+                <select id="searchCategory" class="search-select">
+                    <option value="all">మొత్తం బైబిల్</option>
+                    <option value="ot">పాత నిబంధన</option>
+                    <option value="nt">కొత్త నిబంధన</option>
+                    <optgroup label="ప్రత్యేక పుస్తకం" id="searchBookDropdown"></optgroup>
+                </select>
+            </div>
+        </div>
+        <div class="search-info" id="searchInfo">పదాన్ని పైన టైప్ చేయండి.</div>
+        <div id="searchResults" class="search-results-container"></div>
+    </div>
+
+    <div id="bookmarksOverlay" class="search-overlay">
+        <div class="search-header-container" style="display:flex; align-items:center;">
+            <button id="closeBookmarks" class="icon-btn"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 style="flex:1; text-align:center; font-family: var(--font-heading); color: var(--brand-color); margin:0;">నా బుక్ మార్క్స్</h2>
+            <div style="width: 40px;"></div>
+        </div>
+        <div id="bookmarksListContainer" class="search-results-container"></div>
+    </div>
+
+    <div class="app-container">
+        <header class="top-nav">
+            <button id="menuBtn" class="icon-btn"><i class="fa-solid fa-bars-staggered"></i></button>
+            <div class="brand-logo">
+                <h1 class="wog-title">WOG</h1>
+                <span class="wog-subtitle">World Of God</span>
+            </div>
+            <div class="nav-actions">
+                <button id="openBookmarksBtn" class="icon-btn"><i class="fa-solid fa-bookmark"></i></button>
+                <button id="openSearchBtn" class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button id="themeBtn" class="icon-btn"><i class="fa-solid fa-palette"></i></button>
+            </div>
+        </header>
+
+        <div id="themeMenu" class="theme-menu">
+            <button class="theme-option" data-theme="theme-light">☀️ Light Theme</button>
+            <button class="theme-option" data-theme="theme-sepia">📖 Sepia Theme</button>
+            <button class="theme-option" data-theme="theme-dark">🌙 Dark Theme</button>
+            <div class="font-size-controls">
+                <button id="fontDecrease">A-</button>
+                <button id="fontIncrease">A+</button>
+            </div>
+        </div>
+
+        <main id="mainContent">
+            <div id="homeDashboard" class="home-dashboard">
+                <div class="dashboard-header">
+                    <h2>దేవుని వాక్యంలోకి స్వాగతం</h2>
+                    <p>ప్రతిరోజూ దేవునితో నడవండి</p>
                 </div>
-            `;
-        });
+                
+                <div id="vodBanner" class="vod-banner">
+                    <span class="vod-label">నేటి వాక్యం</span>
+                    <p id="vodText" class="vod-text">లోడ్ అవుతోంది...</p>
+                    <span id="vodRef" class="vod-ref"></span>
+                </div>
 
-        elements.versesContainer.innerHTML = html;
-        updatePagination();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+                <div class="quick-links-grid">
+                    <div class="quick-link-card" onclick="openSidebarTo('ot')">
+                        <div class="ql-icon"><i class="fa-solid fa-scroll"></i></div>
+                        <div class="ql-title">పాత నిబంధన</div>
+                    </div>
+                    <div class="quick-link-card" onclick="openSidebarTo('nt')">
+                        <div class="ql-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="ql-title">కొత్త నిబంధన</div>
+                    </div>
+                    <div class="quick-link-card" onclick="document.getElementById('openSearchBtn').click()">
+                        <div class="ql-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div class="ql-title">వెతుకులాట</div>
+                    </div>
+                    <div class="quick-link-card" onclick="document.getElementById('openBookmarksBtn').click()">
+                        <div class="ql-icon"><i class="fa-solid fa-bookmark"></i></div>
+                        <div class="ql-title">బుక్ మార్క్స్</div>
+                    </div>
+                </div>
+            </div>
 
-    // CLICK SELECTION LOGIC
-    elements.versesContainer.addEventListener('contextmenu', (e) => {
-        const block = e.target.closest('.verse-block');
-        if (block) e.preventDefault(); 
-    });
+            <div id="chapterSelection" class="chapter-selection" style="display: none;">
+                <h3 id="selectedBookTitle" class="fancy-title"></h3>
+                <div id="chapterGrid" class="chapter-grid"></div>
+            </div>
 
-    elements.versesContainer.addEventListener('click', (e) => {
-        const block = e.target.closest('.verse-block');
-        if (block) {
-            const verseId = block.dataset.verseid;
-            if(selectedVerses.has(verseId)) {
-                selectedVerses.delete(verseId); block.classList.remove('selected');
-            } else {
-                selectedVerses.add(verseId); block.classList.add('selected');
-            }
-            updateBottomBar();
-        }
-    });
+            <div id="versesContainer" class="magazine-reading-area" style="display: none;"></div>
 
-    function updateBottomBar() {
-        if(selectedVerses.size > 0) {
-            elements.bottomActionBar.classList.add('active');
-            elements.selectedCount.textContent = `${selectedVerses.size} ఎంచుకున్నారు`;
-        } else {
-            elements.bottomActionBar.classList.remove('active');
-        }
-    }
+            <div id="paginationControls" class="pagination" style="display: none;">
+                <button id="prevBtn" class="nav-btn"><i class="fa-solid fa-arrow-left"></i> క్రితం</button>
+                <button id="nextBtn" class="nav-btn">తర్వాత <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+        </main>
+    </div>
 
-    window.clearSelection = function() {
-        selectedVerses.forEach(id => {
-            const el = document.getElementById(`verse-${id}`);
-            if(el) el.classList.remove('selected');
-        });
-        selectedVerses.clear(); updateBottomBar();
-    };
+    <div id="bottomActionBar" class="bottom-action-bar">
+        <span id="selectedCount" class="action-count">0 వచనాలు</span>
+        <div class="action-buttons">
+            <button onclick="bookmarkSelected()" title="Bookmark"><i class="fa-solid fa-bookmark"></i></button>
+            <button onclick="highlightSelected()" title="Highlight"><i class="fa-solid fa-highlighter"></i></button>
+            <button onclick="copySelected()" title="Copy"><i class="fa-solid fa-copy"></i></button>
+            <button onclick="shareSelected()" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+            <button onclick="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+    </div>
 
-    function getFormattedSelectedText() {
-        const sortedIds = Array.from(selectedVerses).sort((a, b) => {
-            const partsA = a.split('-').map(Number); const partsB = b.split('-').map(Number);
-            if(partsA[0] !== partsB[0]) return partsA[0] - partsB[0];
-            if(partsA[1] !== partsB[1]) return partsA[1] - partsB[1];
-            return partsA[2] - partsB[2];
-        });
+    <div id="toast" class="toast"></div>
 
-        let copyText = "";
-        sortedIds.forEach(id => {
-            const parts = id.split('-');
-            const b = parseInt(parts[0]); const c = parseInt(parts[1]); const v = parseInt(parts[2]);
-            const bookName = teluguBooks[b]; const text = bibleData.Book[b].Chapter[c].Verse[v].Verse;
-            copyText += `${bookName} ${c + 1}:${v + 1} - ${text}\n\n`;
-        });
-        return copyText.trim();
-    }
-
-    window.copySelected = function() {
-        const textToCopy = getFormattedSelectedText();
-        try {
-            const textArea = document.createElement("textarea"); textArea.value = textToCopy;
-            textArea.style.position = "fixed"; textArea.style.left = "-9999px";
-            document.body.appendChild(textArea); textArea.focus(); textArea.select();
-            document.execCommand('copy'); document.body.removeChild(textArea);
-            showToast("వచనాలు కాపీ చేయబడ్డాయి!"); clearSelection();
-        } catch (err) { showToast("కాపీ ఫెయిల్ అయ్యింది."); }
-    };
-
-    window.shareSelected = async function() {
-        const textToShare = getFormattedSelectedText();
-        if (navigator.share && window.isSecureContext) {
-            try { await navigator.share({ title: 'WOG Bible', text: textToShare }); clearSelection();} 
-            catch (err) { console.log('Share canceled'); }
-        } else { copySelected(); }
-    };
-
-    window.highlightSelected = function() {
-        selectedVerses.forEach(verseId => {
-            const el = document.getElementById(`verse-${verseId}`); 
-            if(userHighlights.includes(verseId)) {
-                userHighlights = userHighlights.filter(id => id !== verseId);
-                el.classList.remove('is-highlighted');
-            } else {
-                userHighlights.push(verseId); el.classList.add('is-highlighted');
-            }
-        });
-        localStorage.setItem('wogHighlights', JSON.stringify(userHighlights));
-        showToast("హైలైట్స్ అప్డేట్ చేయబడ్డాయి!"); clearSelection();
-    };
-
-    window.bookmarkSelected = function() {
-        selectedVerses.forEach(verseId => {
-            const el = document.getElementById(`verse-${verseId}`); 
-            if(userBookmarks.includes(verseId)) {
-                userBookmarks = userBookmarks.filter(id => id !== verseId);
-                el.classList.remove('is-bookmarked');
-            } else {
-                userBookmarks.push(verseId); el.classList.add('is-bookmarked');
-            }
-        });
-        localStorage.setItem('wogBookmarks', JSON.stringify(userBookmarks));
-        showToast("బుక్ మార్క్స్ అప్డేట్ చేయబడ్డాయి!"); clearSelection();
-    };
-
-    // SEARCH & BOOKMARKS
-    document.getElementById('openSearchBtn').onclick = () => { elements.searchOverlay.classList.add('active'); history.pushState({ view: 'search' }, ''); };
-    document.getElementById('doSearchBtn').onclick = performSearch;
-    elements.searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') performSearch(); });
-
-    function performSearch() {
-        const keyword = elements.searchInput.value.trim(); const category = elements.searchCategory.value; 
-        if (!keyword || keyword.length < 2) { elements.searchInfo.textContent = "దయచేసి కనీసం 2 అక్షరాలు టైప్ చేయండి."; return; }
-        elements.searchResults.innerHTML = ''; elements.searchInfo.textContent = "వెతుకుతున్నాం...";
-        let count = 0; let resultsHtml = '';
-
-        bibleData.Book.forEach((book, bIndex) => {
-            if (category === 'ot' && bIndex > 38) return; if (category === 'nt' && bIndex < 39) return; 
-            if (category !== 'all' && category !== 'ot' && category !== 'nt' && parseInt(category) !== bIndex) return; 
-
-            book.Chapter.forEach((chapter, cIndex) => {
-                chapter.Verse.forEach((verse, vIndex) => {
-                    if (verse.Verse.includes(keyword)) {
-                        count++; const bookName = teluguBooks[bIndex];
-                        const highlightedText = verse.Verse.replace(new RegExp(keyword, 'gi'), match => `<span class="search-word-hl">${match}</span>`);
-                        resultsHtml += `<div class="result-card" onclick="jumpToVerse(${bIndex}, ${cIndex}, ${vIndex})"><div class="result-ref">${bookName} ${cIndex + 1}:${vIndex + 1}</div><div class="result-text">${highlightedText}</div></div>`;
-                    }
-                });
-            });
-        });
-        if (count === 0) { elements.searchInfo.textContent = `క్షమించండి, ఫలితాలు దొరకలేదు.`; } 
-        else { elements.searchInfo.textContent = `మొత్తం ${count} ఫలితాలు వచ్చాయి. చదవడానికి వచనంపై క్లిక్ చేయండి.`; elements.searchResults.innerHTML = resultsHtml; }
-    }
-
-    elements.openBookmarksBtn.onclick = () => { renderBookmarksList(); elements.bookmarksOverlay.classList.add('active'); history.pushState({ view: 'bookmarks' }, ''); };
-
-    function renderBookmarksList() {
-        if (userBookmarks.length === 0) { elements.bookmarksListContainer.innerHTML = '<div class="search-info">మీరు ఇంకా ఏ వచనాలను బుక్ మార్క్ చేయలేదు.</div>'; return; }
-        let html = ''; const reversedBookmarks = [...userBookmarks].reverse();
-        reversedBookmarks.forEach(id => {
-            const parts = id.split('-'); if(parts.length === 3) {
-                const bIndex = parseInt(parts[0]); const cIndex = parseInt(parts[1]); const vIndex = parseInt(parts[2]);
-                if(bibleData && bibleData.Book[bIndex] && bibleData.Book[bIndex].Chapter[cIndex] && bibleData.Book[bIndex].Chapter[cIndex].Verse[vIndex]) {
-                    const bookName = teluguBooks[bIndex]; const verseText = bibleData.Book[bIndex].Chapter[cIndex].Verse[vIndex].Verse;
-                    html += `<div class="result-card" onclick="jumpToVerse(${bIndex}, ${cIndex}, ${vIndex})"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;"><div class="result-ref"><i class="fa-solid fa-bookmark" style="color: #f1c40f; margin-right:5px;"></i> ${bookName} ${cIndex + 1}:${vIndex + 1}</div><button class="icon-btn" style="padding:0; font-size:1.2rem; color: var(--text-muted);" onclick="event.stopPropagation(); removeBookmarkFromList('${id}')" title="Delete"><i class="fa-solid fa-trash-can"></i></button></div><div class="result-text">${verseText}</div></div>`;
-                }
-            }
-        });
-        elements.bookmarksListContainer.innerHTML = html;
-    }
-
-    window.removeBookmarkFromList = function(verseId) {
-        userBookmarks = userBookmarks.filter(id => id !== verseId); localStorage.setItem('wogBookmarks', JSON.stringify(userBookmarks));
-        renderBookmarksList(); showToast("బుక్ మార్క్ తొలగించబడింది.");
-        const el = document.getElementById(`verse-${verseId}`); if(el) { el.classList.remove('is-bookmarked'); }
-    };
-
-    window.jumpToVerse = function(bIndex, cIndex, vIndex) {
-        history.back(); 
-        setTimeout(() => {
-            history.pushState({ view: 'reading', bookIndex: bIndex, chapterIndex: cIndex }, ''); loadMagazineChapter(bIndex, cIndex);
-            setTimeout(() => {
-                const targetVerse = document.getElementById(`verse-${bIndex}-${cIndex}-${vIndex}`);
-                if (targetVerse) { targetVerse.scrollIntoView({ behavior: 'smooth', block: 'center' }); targetVerse.classList.add('target-highlight'); setTimeout(() => { targetVerse.classList.remove('target-highlight'); }, 3000); }
-            }, 300); 
-        }, 100);
-    };
-
-    function showToast(msg) { elements.toast.textContent = msg; elements.toast.classList.add('show'); setTimeout(() => elements.toast.classList.remove('show'), 3000); }
-
-    function updatePagination() {
-        elements.paginationControls.style.display = 'flex';
-        document.getElementById('prevBtn').onclick = () => { if (currentChapterIndex > 0) { history.pushState({ view: 'reading', bookIndex: currentBookIndex, chapterIndex: currentChapterIndex - 1 }, ''); loadMagazineChapter(currentBookIndex, currentChapterIndex - 1); } };
-        document.getElementById('nextBtn').onclick = () => { if (currentChapterIndex < bibleData.Book[currentBookIndex].Chapter.length - 1) { history.pushState({ view: 'reading', bookIndex: currentBookIndex, chapterIndex: currentChapterIndex + 1 }, ''); loadMagazineChapter(currentBookIndex, currentChapterIndex + 1); } };
-    }
-
-    // 🟢 100% FIXED FONT SIZE LOGIC
-    document.querySelectorAll('.theme-option').forEach(btn => {
-        btn.onclick = (e) => { document.body.className = e.target.dataset.theme; localStorage.setItem('wogTheme', e.target.dataset.theme); elements.themeMenu.classList.remove('active'); };
-    });
-
-    let currentFontSize = parseInt(localStorage.getItem('wogFontSize')) || 16;
-    
-    function applySavedSettings() {
-        const savedTheme = localStorage.getItem('wogTheme'); 
-        if(savedTheme) document.body.className = savedTheme;
-        
-        // This will scale everything automatically (Mobile rem calculation)
-        document.documentElement.style.fontSize = currentFontSize + 'px';
-    }
-
-    document.getElementById('fontIncrease').onclick = () => { 
-        if(currentFontSize < 26) { 
-            currentFontSize += 2; 
-            document.documentElement.style.fontSize = currentFontSize + 'px'; 
-            localStorage.setItem('wogFontSize', currentFontSize); 
-        } 
-    };
-
-    document.getElementById('fontDecrease').onclick = () => { 
-        if(currentFontSize > 12) { 
-            currentFontSize -= 2; 
-            document.documentElement.style.fontSize = currentFontSize + 'px'; 
-            localStorage.setItem('wogFontSize', currentFontSize); 
-        } 
-    };
-});
+    <script src="app.js"></script>
+</body>
+</html>

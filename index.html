@@ -25,27 +25,36 @@
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* 🟢 UPDATED: DARK GRAY MODE */
         body.theme-dark { 
             --app-bg: #000000;          
             --paper-bg: #111111;        
             --text-main: #e0e0e0;       
             --text-muted: #888888;      
             --border-light: #222222;    
-            --brand-color: #666666; /* Dark Gray for Headers and Icons */
-            --brand-light: #1a1a1a; /* Very Dark Gray for selection */
+            --brand-color: #666666; 
+            --brand-light: #1a1a1a; 
             --highlight-color: rgba(255, 235, 59, 0.35); 
         }
         
         body.theme-sepia { --app-bg: #f4ecd8; --paper-bg: #fdf6e3; --text-main: #5c4b37; --text-muted: #8a7b66; --border-light: #e6dcc3; --brand-light: #f4ecd8; --highlight-color: rgba(211, 84, 0, 0.2); }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        html { background-color: var(--app-bg); transition: background-color var(--transition); }
         body { background-color: var(--app-bg); color: var(--text-main); font-family: var(--font-ui); line-height: 1.5; transition: background-color var(--transition), color var(--transition); overflow-x: hidden; }
         
-        .app-container { max-width: 850px; margin: 0 auto; min-height: 100vh; background: var(--app-bg); padding-bottom: 120px; position: relative;}
+        /* 🟢 FIX: Added padding-top so the fixed header doesn't cover content */
+        .app-container { max-width: 850px; margin: 0 auto; min-height: 100vh; background: var(--app-bg); padding-top: 75px; padding-bottom: 120px; position: relative;}
 
-        /* HEADER */
-        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--paper-bg); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(0,0,0,0.06); border-bottom: 2px solid var(--brand-color); }
+        /* 🟢 FIX: Changed to position: fixed. It will NEVER fail on scroll. */
+        .top-nav { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 20px; background: var(--paper-bg); 
+            position: fixed; top: 0; left: 50%; transform: translateX(-50%); 
+            width: 100%; max-width: 850px; z-index: 1500; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.06); border-bottom: 2px solid var(--brand-color); 
+        }
+        
         .brand-logo { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         .wog-title { font-family: var(--font-heading); font-size: 2.2rem; color: var(--brand-color); font-weight: 800; line-height: 1; margin: 0; letter-spacing: 0.5px; }
         .wog-subtitle { font-family: var(--font-ui); font-size: 0.65rem; letter-spacing: 2px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
@@ -53,8 +62,13 @@
         .icon-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 8px; transition: var(--transition); }
         .icon-btn:hover { color: var(--brand-color); }
 
-        /* THEME MENU */
-        .theme-menu { position: absolute; top: 65px; right: 20px; background: var(--paper-bg); box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; display: none; z-index: 1000; border: 1px solid var(--border-light); }
+        /* 🟢 FIX: Changed Theme Menu to position: fixed so it stays with the screen */
+        .theme-menu { 
+            position: fixed; top: 75px; right: 20px; 
+            background: var(--paper-bg); box-shadow: 0 5px 20px rgba(0,0,0,0.2); 
+            border-radius: 12px; padding: 10px; display: none; z-index: 1600; 
+            border: 1px solid var(--border-light); 
+        }
         .theme-menu.active { display: block; }
         .theme-option { display: block; width: 100%; padding: 12px; text-align: left; background: none; border: none; color: var(--text-main); cursor: pointer; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; border-radius: 6px; }
         .font-size-controls { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 5px; }
@@ -67,7 +81,7 @@
         .sidebar.active { left: 0; }
         .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-light); background: var(--brand-light); }
         .sidebar-header h2 { font-family: var(--font-heading); color: var(--brand-color); font-size: 1.5rem; font-weight: 700; margin: 0; }
-        .book-list { padding: 10px 0; background-color: var(--paper-bg); }
+        .book-list { padding: 10px 0 100px 0; background-color: var(--paper-bg); }
         .book-item { display: block; width: 100%; text-align: left; padding: 14px 25px; background: none; border: none; color: var(--text-main); font-size: 1.25rem; font-family: var(--font-heading); font-weight: 600; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border-light);}
 
         /* DASHBOARD */
@@ -107,12 +121,8 @@
         .is-highlighted .verse-text { background-color: var(--highlight-color); border-radius: 4px; padding: 0 5px; }
         .is-bookmarked .verse-num::before { content: '\f02e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: -8px; color: #f1c40f; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
 
-        /* 🟢 UPDATED: DARK GRAY SELECTION FOR DARK MODE */
         .verse-block.selected { background-color: var(--brand-light); border-left: 4px solid var(--brand-color); }
-        body.theme-dark .verse-block.selected { 
-            background-color: #1a1a1a; 
-            border-left-color: #666666; 
-        }
+        body.theme-dark .verse-block.selected { background-color: #1a1a1a; border-left-color: #666666; }
         
         /* BOTTOM BAR */
         .bottom-action-bar { 
@@ -131,8 +141,8 @@
         .action-buttons button { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 5px; }
 
         /* OVERLAYS */
-        .search-overlay { position: fixed; top: 100%; left: 0; width: 100%; height: 100vh; background-color: var(--app-bg) !important; z-index: 2000 !important; transition: top 0.4s ease; display: flex; flex-direction: column; }
-        .search-overlay.active { top: 0; }
+        .search-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: var(--app-bg) !important; z-index: 2000 !important; transform: translateY(100%); transition: transform 0.4s ease; display: flex; flex-direction: column; }
+        .search-overlay.active { transform: translateY(0); }
         .search-header-container { background: var(--paper-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px; }
         .search-header-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;}
         .search-header-bar input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-light); border-radius: 30px; font-size: 1rem; font-family: var(--font-ui); outline: none; background: var(--app-bg); color: var(--text-main);}
@@ -261,7 +271,7 @@
                     </div>
                     <div class="quick-link-card" onclick="document.getElementById('openSearchBtn').click()">
                         <div class="ql-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
-                        <div class="ql-title">వెతకండి</div>
+                        <div class="ql-title">వెతుకులాట</div>
                     </div>
                     <div class="quick-link-card" onclick="document.getElementById('openBookmarksBtn').click()">
                         <div class="ql-icon"><i class="fa-solid fa-bookmark"></i></div>
