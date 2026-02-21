@@ -5,129 +5,232 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WOG బైబిల్ - WORLD OF GOD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Telugu:wght@400;700&family=Playfair+Display:ital,wght@0,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Telugu:wght@400;600;700;800&family=Mallanna&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --font-ui: 'Segoe UI', sans-serif;
-            --font-reading: 'Noto Serif Telugu', serif;
-            --font-heading: 'Playfair Display', serif;
-            --base-font-size: 18px;
-            --transition: 0.3s ease;
+            --font-heading: 'Anek Telugu', sans-serif;
+            --font-reading: 'Mallanna', sans-serif;
+            --font-ui: 'Segoe UI', system-ui, sans-serif;
+            
+            --app-bg: #f4f6f8;        
+            --paper-bg: #ffffff;      
+            --text-main: #202124;     
+            --text-muted: #5f6368;
+            --brand-color: #900C3F;   
+            --brand-light: #fbeef1;   
+            --border-light: #e0e0e0;
+            --highlight-color: rgba(241, 196, 15, 0.4);
+            
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .theme-light { --bg-color: #f9f9f9; --surface-color: #ffffff; --text-color: #2c3e50; --text-muted: #7f8c8d; --accent-color: #c0392b; --border-color: #ecf0f1; --highlight-color: rgba(241, 196, 15, 0.4); }
-        .theme-sepia { --bg-color: #f4ecd8; --surface-color: #fdf6e3; --text-color: #5c4b37; --text-muted: #8a7b66; --accent-color: #d35400; --border-color: #e6dcc3; --highlight-color: rgba(211, 84, 0, 0.2); }
-        .theme-dark { --bg-color: #121212; --surface-color: #1e1e1e; --text-color: #e0e0e0; --text-muted: #a0a0a0; --accent-color: #e74c3c; --border-color: #333; --highlight-color: rgba(243, 156, 18, 0.4); }
+        /* 🟢 UPDATED: DARK GRAY MODE */
+        body.theme-dark { 
+            --app-bg: #000000;          
+            --paper-bg: #111111;        
+            --text-main: #e0e0e0;       
+            --text-muted: #888888;      
+            --border-light: #222222;    
+            --brand-color: #666666; /* Dark Gray for Headers and Icons */
+            --brand-light: #1a1a1a; /* Very Dark Gray for selection */
+            --highlight-color: rgba(255, 235, 59, 0.35); 
+        }
+        
+        body.theme-sepia { --app-bg: #f4ecd8; --paper-bg: #fdf6e3; --text-main: #5c4b37; --text-muted: #8a7b66; --border-light: #e6dcc3; --brand-light: #f4ecd8; --highlight-color: rgba(211, 84, 0, 0.2); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--bg-color); color: var(--text-color); font-family: var(--font-ui); font-size: var(--base-font-size); transition: background-color var(--transition), color var(--transition); }
-        .app-container { max-width: 800px; margin: 0 auto; position: relative; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--app-bg); color: var(--text-main); font-family: var(--font-ui); line-height: 1.5; transition: background-color var(--transition), color var(--transition); overflow-x: hidden; }
+        
+        .app-container { max-width: 850px; margin: 0 auto; min-height: 100vh; background: var(--app-bg); padding-bottom: 120px; position: relative;}
 
-        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--surface-color); box-shadow: 0 2px 10px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .brand-logo { text-align: center; }
-        .wog-title { font-family: var(--font-heading); font-size: 1.8em; color: var(--accent-color); font-weight: 700; line-height: 1; }
-        .wog-subtitle { font-size: 0.55em; letter-spacing: 3px; font-weight: bold; color: var(--text-muted); display: block; }
-        .icon-btn { background: none; border: none; font-size: 1.3em; color: var(--text-color); cursor: pointer; padding: 8px; }
+        /* HEADER */
+        .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: var(--paper-bg); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(0,0,0,0.06); border-bottom: 2px solid var(--brand-color); }
+        .brand-logo { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .wog-title { font-family: var(--font-heading); font-size: 2.2rem; color: var(--brand-color); font-weight: 800; line-height: 1; margin: 0; letter-spacing: 0.5px; }
+        .wog-subtitle { font-family: var(--font-ui); font-size: 0.65rem; letter-spacing: 2px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 2px;}
+        .nav-actions { display: flex; gap: 5px; }
+        .icon-btn { background: none; border: none; font-size: 1.4rem; color: var(--text-main); cursor: pointer; padding: 8px; transition: var(--transition); }
+        .icon-btn:hover { color: var(--brand-color); }
 
-        .sidebar { position: fixed; top: 0; left: -300px; width: 280px; height: 100vh; background: var(--surface-color); z-index: 1000; overflow-y: auto; transition: left var(--transition); box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
-        .sidebar.active { left: 0; }
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
-        .sidebar-overlay.active { display: block; }
-        .sidebar-header { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid var(--border-color); color: var(--accent-color); }
-        .book-list { padding: 10px; }
-        .book-item { display: block; width: 100%; text-align: left; padding: 15px; background: none; border: none; border-bottom: 1px solid var(--border-color); color: var(--text-color); font-size: 1.1em; cursor: pointer; }
-
-        .search-overlay { position: fixed; top: 100%; left: 0; width: 100%; height: 100vh; background: var(--bg-color); z-index: 2000; transition: top 0.4s ease; display: flex; flex-direction: column; }
-        .search-overlay.active { top: 0; }
-        .search-header-bar { display: flex; padding: 15px; background: var(--surface-color); box-shadow: 0 2px 10px rgba(0,0,0,0.05); align-items: center; gap: 10px; }
-        .search-header-bar input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 25px; font-size: 1.1em; background: var(--bg-color); color: var(--text-color); outline: none; }
-        .search-info { text-align: center; padding: 15px; color: var(--text-muted); font-size: 0.9em; }
-        .search-results-container { flex: 1; overflow-y: auto; padding: 15px; }
-
-        .result-card { background: var(--surface-color); padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border-left: 4px solid var(--accent-color); cursor: pointer; transition: transform 0.2s; }
-        .result-card:active { transform: scale(0.98); }
-        .result-ref { font-family: var(--font-ui); font-size: 0.85em; font-weight: bold; color: var(--accent-color); margin-bottom: 8px; }
-        .result-text { font-family: var(--font-reading); font-size: 1.1em; line-height: 1.6; color: var(--text-color); }
-        .search-word-hl { background-color: rgba(241, 196, 15, 0.5); font-weight: bold; border-radius: 3px; padding: 0 2px; }
-
-        .theme-menu { position: absolute; top: 65px; right: 20px; background: var(--surface-color); box-shadow: 0 5px 20px rgba(0,0,0,0.15); border-radius: 8px; padding: 10px; display: none; z-index: 100; border: 1px solid var(--border-color); }
+        /* THEME MENU */
+        .theme-menu { position: absolute; top: 65px; right: 20px; background: var(--paper-bg); box-shadow: 0 5px 20px rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; display: none; z-index: 1000; border: 1px solid var(--border-light); }
         .theme-menu.active { display: block; }
-        .theme-option { display: block; width: 100%; padding: 10px; text-align: left; background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1em; }
-        .font-size-controls { display: flex; gap: 10px; padding-top: 10px; }
-        .font-size-controls button { flex: 1; padding: 8px; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 4px; color: var(--text-color); cursor: pointer; }
+        .theme-option { display: block; width: 100%; padding: 12px; text-align: left; background: none; border: none; color: var(--text-main); cursor: pointer; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; border-radius: 6px; }
+        .font-size-controls { display: flex; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); margin-top: 5px; }
+        .font-size-controls button { flex: 1; padding: 10px; background: var(--app-bg); border: 1px solid var(--border-light); border-radius: 6px; color: var(--text-main); cursor: pointer; font-family: var(--font-heading); font-size: 1.1rem; font-weight: bold; }
 
-        .vod-banner { background: linear-gradient(135deg, var(--surface-color), var(--bg-color)); margin: 20px; padding: 30px; border-radius: 12px; text-align: center; border-left: 5px solid var(--accent-color); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .vod-label { font-size: 0.8em; text-transform: uppercase; letter-spacing: 2px; color: var(--accent-color); font-weight: bold; }
-        .vod-text { font-family: var(--font-reading); font-size: 1.3em; margin: 15px 0; font-style: italic; line-height: 1.6; }
-        .chapter-selection { padding: 20px; text-align: center; }
-        .fancy-title { font-family: var(--font-heading); font-size: 2em; margin-bottom: 20px; color: var(--accent-color); }
-        .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
-        .chapter-btn { background: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; font-size: 1.2em; cursor: pointer; }
+        /* SIDEBAR */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.7); z-index: 9998 !important; opacity: 0; visibility: hidden; transition: var(--transition); }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .sidebar { position: fixed; top: 0; left: -320px; width: 280px; max-width: 85vw; height: 100vh; background-color: var(--paper-bg) !important; z-index: 9999 !important; overflow-y: auto; transition: var(--transition); box-shadow: 4px 0 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border-light); background: var(--brand-light); }
+        .sidebar-header h2 { font-family: var(--font-heading); color: var(--brand-color); font-size: 1.5rem; font-weight: 700; margin: 0; }
+        .book-list { padding: 10px 0; background-color: var(--paper-bg); }
+        .book-item { display: block; width: 100%; text-align: left; padding: 14px 25px; background: none; border: none; color: var(--text-main); font-size: 1.25rem; font-family: var(--font-heading); font-weight: 600; cursor: pointer; transition: 0.2s; border-bottom: 1px solid var(--border-light);}
 
-        .magazine-reading-area { padding: 20px 25px; max-width: 100%; font-family: var(--font-reading); }
-        .chapter-heading { font-family: var(--font-heading); font-size: 2.5em; text-align: center; margin-bottom: 40px; color: var(--text-color); position: relative; }
-        .verse-block { display: flex; margin-bottom: 20px; position: relative; padding: 10px; border-radius: 8px; transition: background 0.3s ease; }
-        .verse-num { font-family: var(--font-ui); color: var(--accent-color); font-weight: bold; font-size: 0.85em; min-width: 25px; margin-top: 6px; }
-        .verse-text { flex: 1; font-size: 1.2em; line-height: 1.8; color: var(--text-color); }
-        .verse-block:first-of-type .verse-text::first-letter { font-family: var(--font-heading); font-size: 3.5em; float: left; margin-right: 12px; line-height: 0.8; color: var(--accent-color); padding-top: 5px; }
+        /* DASHBOARD */
+        .home-dashboard { padding: 20px; animation: fadeIn 0.5s ease; }
+        .dashboard-header { text-align: center; margin-bottom: 25px; margin-top: 10px;}
+        .dashboard-header h2 { font-family: var(--font-heading); font-size: 1.8rem; color: var(--text-main); font-weight: 800;}
+        .dashboard-header p { font-family: var(--font-ui); color: var(--text-muted); font-size: 1rem; }
 
-        .target-highlight { animation: pulse-glow 3s ease-out; border-left: 4px solid var(--accent-color); }
-        @keyframes pulse-glow {
-            0% { background-color: rgba(241, 196, 15, 0.8); transform: scale(1.02); }
-            50% { background-color: rgba(241, 196, 15, 0.4); }
-            100% { background-color: transparent; transform: scale(1); }
+        .vod-banner { background: var(--brand-color); color: white !important; padding: 35px 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); position: relative; overflow: hidden; margin-bottom: 30px; text-align: center;}
+        .vod-banner::after { content: '\f10d'; font-family: 'FontAwesome'; position: absolute; top: -10px; right: 10px; font-size: 7rem; opacity: 0.1; color: white;}
+        .vod-label { background: rgba(0,0,0,0.3); color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.9rem; margin-bottom: 20px; display: inline-block; font-weight: bold; letter-spacing: 2px;}
+        .vod-text { font-family: var(--font-reading); font-size: 2rem; line-height: 1.6; text-shadow: 0 2px 4px rgba(0,0,0,0.3); margin-bottom: 15px; overflow-wrap: break-word; color: white !important;}
+        .vod-ref { font-family: var(--font-heading); font-weight: 700; color: rgba(255,255,255,0.9); font-size: 1.1rem; }
+
+        .quick-links-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .quick-link-card { background-color: var(--paper-bg); border: 1px solid var(--border-light); border-radius: 16px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: var(--transition); cursor: pointer; }
+        .ql-icon { font-size: 2.2rem; color: var(--brand-color); margin-bottom: 12px; }
+        .ql-title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 700; color: var(--text-main); }
+
+        /* CHAPTERS & READING AREA */
+        .chapter-selection { padding: 30px 20px; text-align: center; }
+        .fancy-title { font-family: var(--font-heading); font-size: 2.2rem; margin-bottom: 25px; color: var(--text-main); font-weight: 800; overflow-wrap: break-word; }
+        .chapter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(65px, 1fr)); gap: 12px; }
+        .chapter-btn { background: var(--paper-bg); color: var(--text-main); border: 1px solid var(--border-light); padding: 15px 0; border-radius: 12px; font-size: 1.3rem; cursor: pointer; font-family: var(--font-heading); font-weight: 700; transition: 0.2s; }
+
+        .magazine-reading-area { background: var(--paper-bg); margin: 20px; padding: 35px 25px; border-radius: 16px; box-shadow: 0 4px 25px rgba(0,0,0,0.04); border: 1px solid var(--border-light); }
+        .chapter-heading { font-family: var(--font-heading); font-size: 2.2rem; text-align: center; margin-bottom: 30px; color: var(--brand-color); font-weight: 800; padding-bottom: 20px; border-bottom: 1px solid var(--border-light); overflow-wrap: break-word; }
+        
+        .verse-block { 
+            display: flex; align-items: flex-start; margin-bottom: 12px; padding: 12px 5px; 
+            border-radius: 8px; transition: 0.2s; position: relative; cursor: pointer;
+            -webkit-user-select: none; -ms-user-select: none; user-select: none; -webkit-touch-callout: none;
         }
-
-        .verse-actions-menu { position: absolute; right: 10px; top: -15px; background: var(--surface-color); box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 20px; padding: 8px 15px; display: none; gap: 20px; border: 1px solid var(--border-color); z-index: 10; }
-        .verse-block.active .verse-actions-menu { display: flex; }
-        .v-btn { background: none; border: none; color: var(--text-color); font-size: 1.2em; cursor: pointer; }
+        .verse-num { font-family: var(--font-heading); color: var(--brand-color); font-weight: 800; font-size: 1.1rem; min-width: 30px; margin-top: 6px; position: relative;}
+        .verse-text { flex: 1; font-family: var(--font-reading); font-size: 1.6rem; line-height: 1.7; color: var(--text-main); overflow-wrap: break-word;}
+        
         .is-highlighted .verse-text { background-color: var(--highlight-color); border-radius: 4px; padding: 0 5px; }
+        .is-bookmarked .verse-num::before { content: '\f02e'; font-family: 'FontAwesome'; position: absolute; top: -12px; left: -8px; color: #f1c40f; font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
 
-        .pagination { display: flex; justify-content: space-between; padding: 20px; border-top: 1px solid var(--border-color); margin-top: 30px; }
-        .nav-btn { background: var(--surface-color); border: 1px solid var(--border-color); padding: 12px 25px; border-radius: 25px; cursor: pointer; color: var(--text-color); }
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 12px 24px; border-radius: 25px; font-size: 0.9em; opacity: 0; transition: 0.3s; z-index: 3000; }
-        .toast.show { opacity: 1; bottom: 50px; }
+        /* 🟢 UPDATED: DARK GRAY SELECTION FOR DARK MODE */
+        .verse-block.selected { background-color: var(--brand-light); border-left: 4px solid var(--brand-color); }
+        body.theme-dark .verse-block.selected { 
+            background-color: #1a1a1a; 
+            border-left-color: #666666; 
+        }
+        
+        /* BOTTOM BAR */
+        .bottom-action-bar { 
+            position: fixed; bottom: -100px; left: 0; width: 100%; 
+            background: var(--brand-color); color: white; 
+            padding: 15px 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            transition: bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 3000; 
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3); 
+            border-top-left-radius: 20px; border-top-right-radius: 20px;
+            flex-wrap: nowrap;
+        }
+        .bottom-action-bar.active { bottom: 0; }
+        .action-count { font-family: var(--font-heading); font-size: 1.2rem; font-weight: bold; white-space: nowrap; }
+        .action-buttons { display: flex; gap: 20px; align-items: center; }
+        .action-buttons button { background: none; border: none; color: white; font-size: 1.4rem; cursor: pointer; padding: 5px; }
+
+        /* OVERLAYS */
+        .search-overlay { position: fixed; top: 100%; left: 0; width: 100%; height: 100vh; background-color: var(--app-bg) !important; z-index: 2000 !important; transition: top 0.4s ease; display: flex; flex-direction: column; }
+        .search-overlay.active { top: 0; }
+        .search-header-container { background: var(--paper-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 15px; }
+        .search-header-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px;}
+        .search-header-bar input { flex: 1; padding: 12px 15px; border: 1px solid var(--border-light); border-radius: 30px; font-size: 1rem; font-family: var(--font-ui); outline: none; background: var(--app-bg); color: var(--text-main);}
+        .search-filters { display: flex; gap: 10px; padding: 0 5px;}
+        .search-select { flex: 1; padding: 10px 15px; border: 1px solid var(--border-light); border-radius: 8px; font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600; background: var(--app-bg); color: var(--text-main); outline: none;}
+        .search-info { text-align: center; padding: 15px; color: var(--text-muted); font-family: var(--font-heading); font-size: 1.1rem; font-weight: 600;}
+        .search-results-container { flex: 1; overflow-y: auto; padding: 15px; }
+        .result-card { background: var(--paper-bg); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-light); border-left: 5px solid var(--brand-color); cursor: pointer; position: relative;}
+        .result-ref { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: var(--brand-color); margin-bottom: 8px; }
+        .result-text { font-family: var(--font-reading); font-size: 1.4rem; line-height: 1.6; color: var(--text-main); word-break: break-word;}
+        .search-word-hl { background-color: rgba(144, 12, 63, 0.2); color: var(--brand-color); padding: 0 4px; border-radius: 4px; font-weight: bold;}
+
+        /* EXTRAS */
+        .target-highlight { animation: pulse-glow 3s ease-out; border-left: 4px solid var(--brand-color); background: var(--brand-light); }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes pulse-glow { 0% { background-color: rgba(255, 235, 59, 0.4); } 100% { background-color: transparent; } }
+
+        .pagination { display: flex; justify-content: space-between; padding: 0 15px; margin-top: 25px; gap: 10px; }
+        .nav-btn { flex: 1; background: var(--paper-bg); border: 1px solid var(--border-light); padding: 12px 15px; border-radius: 30px; cursor: pointer; color: var(--text-main); font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: 0.2s;}
+        
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: var(--app-bg); padding: 12px 24px; border-radius: 30px; font-size: 1rem; opacity: 0; transition: 0.3s; z-index: 4000; font-family: var(--font-ui); font-weight: 600; text-align: center; width: max-content; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .toast.show { opacity: 1; bottom: 100px; }
+
+        @media screen and (max-width: 600px) {
+            .wog-title { font-size: 1.8rem; }
+            .magazine-reading-area { margin: 10px; padding: 25px 15px; border-radius: 12px;}
+            .chapter-heading { font-size: 1.7rem; margin-bottom: 20px; padding-bottom: 15px; }
+            .verse-text { font-size: 1.4rem; line-height: 1.6; }
+            .fancy-title { font-size: 1.6rem; }
+            .vod-text { font-size: 1.5rem; }
+            .verse-block { padding: 10px 0; }
+            .verse-num { font-size: 1rem; min-width: 28px; margin-top: 4px; }
+            .chapter-grid { gap: 8px; }
+            .chapter-btn { padding: 12px 0; font-size: 1.1rem; }
+            .bottom-action-bar { padding: 12px 15px; }
+            .action-count { font-size: 1rem; }
+            .action-buttons { gap: 12px; }
+            .action-buttons button { font-size: 1.2rem; padding: 2px; }
+        }
     </style>
 </head>
-<body class="theme-light">
+<body>
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
     <aside id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <h2><i class="fa-solid fa-book-bible"></i> పుస్తకాలు</h2>
-            <button id="closeSidebar"><i class="fa-solid fa-xmark"></i></button>
+            <button id="closeSidebar" class="icon-btn" style="color: var(--brand-color);"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div id="bookList" class="book-list"></div>
     </aside>
 
     <div id="searchOverlay" class="search-overlay">
-        <div class="search-header-bar">
-            <button id="closeSearch" class="icon-btn"><i class="fa-solid fa-arrow-left"></i></button>
-            <input type="text" id="advancedSearchInput" placeholder="పదాన్ని వెతకండి (ఉదా: వెలుగు)...">
-            <button id="doSearchBtn" class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <div class="search-header-container">
+            <div class="search-header-bar">
+                <button id="closeSearch" class="icon-btn"><i class="fa-solid fa-arrow-left"></i></button>
+                <input type="text" id="advancedSearchInput" placeholder="పదాన్ని వెతకండి...">
+                <button id="doSearchBtn" class="icon-btn" style="color: var(--brand-color);"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="search-filters">
+                <select id="searchCategory" class="search-select">
+                    <option value="all">మొత్తం బైబిల్</option>
+                    <option value="ot">పాత నిబంధన</option>
+                    <option value="nt">కొత్త నిబంధన</option>
+                    <optgroup label="ప్రత్యేక పుస్తకం" id="searchBookDropdown"></optgroup>
+                </select>
+            </div>
         </div>
-        <div class="search-info" id="searchInfo">మీరు వెతకాలనుకుంటున్న పదాన్ని పైన టైప్ చేయండి.</div>
+        <div class="search-info" id="searchInfo">పదాన్ని పైన టైప్ చేయండి.</div>
         <div id="searchResults" class="search-results-container"></div>
+    </div>
+
+    <div id="bookmarksOverlay" class="search-overlay">
+        <div class="search-header-container" style="display:flex; align-items:center;">
+            <button id="closeBookmarks" class="icon-btn"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 style="flex:1; text-align:center; font-family: var(--font-heading); color: var(--brand-color); margin:0;">నా బుక్ మార్క్స్</h2>
+            <div style="width: 40px;"></div>
+        </div>
+        <div id="bookmarksListContainer" class="search-results-container"></div>
     </div>
 
     <div class="app-container">
         <header class="top-nav">
-            <button id="menuBtn" class="icon-btn"><i class="fa-solid fa-bars"></i></button>
+            <button id="menuBtn" class="icon-btn"><i class="fa-solid fa-bars-staggered"></i></button>
             <div class="brand-logo">
                 <h1 class="wog-title">WOG</h1>
-                <span class="wog-subtitle">WORLD OF GOD</span>
+                <span class="wog-subtitle">World Of God</span>
             </div>
             <div class="nav-actions">
+                <button id="openBookmarksBtn" class="icon-btn"><i class="fa-solid fa-bookmark"></i></button>
                 <button id="openSearchBtn" class="icon-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
                 <button id="themeBtn" class="icon-btn"><i class="fa-solid fa-palette"></i></button>
             </div>
         </header>
 
         <div id="themeMenu" class="theme-menu">
-            <button class="theme-option" data-theme="theme-light">Light</button>
-            <button class="theme-option" data-theme="theme-sepia">Sepia</button>
-            <button class="theme-option" data-theme="theme-dark">Dark</button>
-            <hr>
+            <button class="theme-option" data-theme="theme-light">☀️ Light Theme</button>
+            <button class="theme-option" data-theme="theme-sepia">📖 Sepia Theme</button>
+            <button class="theme-option" data-theme="theme-dark">🌙 Dark Theme</button>
             <div class="font-size-controls">
                 <button id="fontDecrease">A-</button>
                 <button id="fontIncrease">A+</button>
@@ -135,10 +238,36 @@
         </div>
 
         <main id="mainContent">
-            <div id="vodBanner" class="vod-banner">
-                <span class="vod-label">నేటి వాక్యం</span>
-                <p id="vodText" class="vod-text">లోడ్ అవుతోంది...</p>
-                <span id="vodRef" class="vod-ref"></span>
+            <div id="homeDashboard" class="home-dashboard">
+                <div class="dashboard-header">
+                    <h2>దేవుని వాక్యంలోకి స్వాగతం</h2>
+                    <p>ప్రతిరోజూ దేవునితో నడవండి</p>
+                </div>
+                
+                <div id="vodBanner" class="vod-banner">
+                    <span class="vod-label">నేటి వాక్యం</span>
+                    <p id="vodText" class="vod-text">లోడ్ అవుతోంది...</p>
+                    <span id="vodRef" class="vod-ref"></span>
+                </div>
+
+                <div class="quick-links-grid">
+                    <div class="quick-link-card" onclick="openSidebarTo('ot')">
+                        <div class="ql-icon"><i class="fa-solid fa-scroll"></i></div>
+                        <div class="ql-title">పాత నిబంధన</div>
+                    </div>
+                    <div class="quick-link-card" onclick="openSidebarTo('nt')">
+                        <div class="ql-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="ql-title">కొత్త నిబంధన</div>
+                    </div>
+                    <div class="quick-link-card" onclick="document.getElementById('openSearchBtn').click()">
+                        <div class="ql-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        <div class="ql-title">వెతకండి</div>
+                    </div>
+                    <div class="quick-link-card" onclick="document.getElementById('openBookmarksBtn').click()">
+                        <div class="ql-icon"><i class="fa-solid fa-bookmark"></i></div>
+                        <div class="ql-title">బుక్ మార్క్స్</div>
+                    </div>
+                </div>
             </div>
 
             <div id="chapterSelection" class="chapter-selection" style="display: none;">
@@ -146,13 +275,24 @@
                 <div id="chapterGrid" class="chapter-grid"></div>
             </div>
 
-            <div id="versesContainer" class="magazine-reading-area"></div>
+            <div id="versesContainer" class="magazine-reading-area" style="display: none;"></div>
 
             <div id="paginationControls" class="pagination" style="display: none;">
-                <button id="prevBtn" class="nav-btn"><i class="fa-solid fa-arrow-left-long"></i> క్రితం</button>
-                <button id="nextBtn" class="nav-btn">తర్వాత <i class="fa-solid fa-arrow-right-long"></i></button>
+                <button id="prevBtn" class="nav-btn"><i class="fa-solid fa-arrow-left"></i> క్రితం</button>
+                <button id="nextBtn" class="nav-btn">తర్వాత <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </main>
+    </div>
+
+    <div id="bottomActionBar" class="bottom-action-bar">
+        <span id="selectedCount" class="action-count">0 వచనాలు</span>
+        <div class="action-buttons">
+            <button onclick="bookmarkSelected()" title="Bookmark"><i class="fa-solid fa-bookmark"></i></button>
+            <button onclick="highlightSelected()" title="Highlight"><i class="fa-solid fa-highlighter"></i></button>
+            <button onclick="copySelected()" title="Copy"><i class="fa-solid fa-copy"></i></button>
+            <button onclick="shareSelected()" title="Share"><i class="fa-solid fa-share-nodes"></i></button>
+            <button onclick="clearSelection()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
     </div>
 
     <div id="toast" class="toast"></div>
